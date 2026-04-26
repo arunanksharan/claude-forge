@@ -7,9 +7,9 @@ Production observability patterns for backend services, with concrete instrument
 | File | What it is | Read when |
 |------|-----------|-----------|
 | [`01-signoz-opentelemetry.md`](./01-signoz-opentelemetry.md) | Full OTel + SigNoz setup: tracing, metrics, custom spans, SLIs/SLOs, dashboards, alerts | All-in-one observability with SigNoz |
-| `02-prometheus-grafana.md` | *(Phase 5)* Prometheus + Grafana + Tempo stack — the "open" alternative to SigNoz | Self-hosted with cloud-native tooling |
-| `03-sentry.md` | *(Phase 5)* Sentry for error tracking, releases, performance — frontend + backend | Error tracking + user-facing apps |
-| `04-langfuse.md` | *(Phase 5)* Langfuse for LLM/agent observability — prompts, completions, traces, evals | Building LLM applications |
+| [`02-prometheus-grafana.md`](./02-prometheus-grafana.md) | Prometheus + Grafana + Tempo + Loki stack — the open alternative to SigNoz | Self-hosted with cloud-native tooling |
+| [`03-sentry.md`](./03-sentry.md) | Sentry for error tracking, releases, performance — frontend + backend + mobile | Error tracking + user-facing apps |
+| [`04-langfuse.md`](./04-langfuse.md) | Langfuse for LLM/agent observability — prompts, completions, traces, evals | Building LLM applications |
 
 ## Quick decision summary
 
