@@ -23,17 +23,20 @@ The goal is that you can drop a single prompt file into Claude Code and get a sy
 
 ## What's inside
 
+93 markdown files, ~24,000 lines of opinionated production-grade guidance.
+
 | Area | Contents |
 |------|----------|
-| [`frontend/`](./frontend) | Next.js (animations, mobile-responsive, design system), Angular |
-| [`backend/`](./backend) | FastAPI, NestJS, Node.js + Express — all with layered architecture, ORM, migrations, testing |
-| [`databases/`](./databases) | PostgreSQL, MongoDB, Redis, Qdrant — schema patterns, indexing, ops |
-| [`async-and-queues/`](./async-and-queues) | Celery, BullMQ, Redis Streams — when to pick which |
-| [`deployment/`](./deployment) | docker-compose, nginx reverse proxy, PM2, SSH bootstrap, Let's Encrypt SSL, per-framework deploy guides |
-| [`mobile/`](./mobile) | Flutter (Riverpod variant), Flutter (Bloc variant), React Native |
-| [`observability/`](./observability) | Sentry, Prometheus + Grafana, Langfuse |
-| [`memory-layer/`](./memory-layer) | Graphiti, Mem0, dual-memory architectures for AI agents |
-| [`testing/`](./testing) | E2E with Puppeteer MCP and Chrome DevTools MCP |
+| [`frontend/`](./frontend) | Next.js (PROMPT, stack, design system, animations, responsive, forms+state, testing), Angular (standalone + signals) |
+| [`backend/`](./backend) | FastAPI, NestJS, Node.js + Express — each with master scaffold prompt + 6 deep-dive guides on layout, ORM, validation, auth, async/queues, testing |
+| [`databases/`](./databases) | PostgreSQL, MongoDB, Redis, Qdrant — schema patterns, indexing, ops, when to pick which |
+| [`async-and-queues/`](./async-and-queues) | Celery, BullMQ, Redis Streams + decision matrix vs Kafka/RabbitMQ/Temporal |
+| [`deployment/`](./deployment) | docker-compose, nginx reverse proxy, PM2, SSH bootstrap, Let's Encrypt SSL + per-framework deploy guides (Next.js, FastAPI, NestJS, Node) |
+| [`mobile/`](./mobile) | Flutter (Riverpod variant), Flutter (Bloc variant), React Native (Expo SDK 52) |
+| [`observability/`](./observability) | SigNoz + OpenTelemetry, Prometheus + Grafana + Tempo + Loki, Sentry, Langfuse |
+| [`memory-layer/`](./memory-layer) | Graphiti + Mem0 dual-memory architecture, 31 entity/edge types, dev docker-compose |
+| [`testing/`](./testing) | Agent-driven E2E via Chrome DevTools MCP and Puppeteer MCP + per-framework conventional testing |
+| [`.claude/skills/`](./.claude/skills) | 16 Claude Code Skills wrapping the workflow-shaped prompts |
 | [`meta/`](./meta) | How to use these prompts, philosophy, Skills explained |
 
 ---
