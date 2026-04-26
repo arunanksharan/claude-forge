@@ -8,13 +8,11 @@ Opinionated, production-grade Next.js (and React) blueprints. Written for Next.j
 |------|-----------|-----------|
 | [`01-stack-and-libraries.md`](./01-stack-and-libraries.md) | Library evaluation — what to use, what to reject, with bundle sizes and reasoning | Picking dependencies for a new app |
 | [`02-design-system-spec.md`](./02-design-system-spec.md) | Full design system spec: token architecture, color philosophy, motion, components | Building or extending a design system |
-| `03-animations-and-motion.md` | *(Phase 1)* Framer Motion patterns, scroll-linked animation, route transitions | Adding rich motion |
-| `04-mobile-responsive.md` | *(Phase 1)* Mobile-first responsive strategy, touch targets, viewport tricks | Mobile / responsive work |
-| `05-forms-and-state.md` | *(Phase 1)* react-hook-form + zod patterns, server state with TanStack Query | Building forms or data flows |
-| `06-testing-with-chrome-devtools-mcp.md` | *(Phase 1)* E2E testing via Chrome DevTools MCP and Puppeteer MCP | Writing E2E tests |
-| `PROMPT.md` | *(Phase 1)* The meta-prompt: paste into Claude Code to scaffold a new project | Starting a new app |
-
-> Files marked *(Phase 1)* are still being written. Phase 0 ships the two foundational docs above.
+| [`03-animations-and-motion.md`](./03-animations-and-motion.md) | Framer Motion patterns, scroll-linked, route transitions | Adding rich motion |
+| [`04-mobile-responsive.md`](./04-mobile-responsive.md) | Mobile-first responsive strategy, touch targets, viewport, safe area | Mobile / responsive work |
+| [`05-forms-and-state.md`](./05-forms-and-state.md) | react-hook-form + zod, TanStack Query, Zustand, URL state | Building forms or data flows |
+| [`06-testing-with-chrome-devtools-mcp.md`](./06-testing-with-chrome-devtools-mcp.md) | Vitest + Playwright + agent-driven E2E via MCP | Writing tests |
+| [`PROMPT.md`](./PROMPT.md) | The meta-prompt: paste into Claude Code to scaffold a new project | Starting a new app |
 
 ## Quick decision summary
 
