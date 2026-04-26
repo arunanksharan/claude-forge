@@ -12,6 +12,6 @@
 
 ## Files
 
-- `flutter-riverpod/PROMPT.md` — *Phase 3* — full project layout: features/ with each feature owning UI + providers + repos + models, freezed for models, dio + retrofit for HTTP, isar/drift for local
-- `flutter-bloc/PROMPT.md` — *Phase 3* — same architectural shape, with Bloc/Cubit replacing Riverpod providers
-- `react-native/PROMPT.md` — *Phase 3* — Expo SDK 51+, expo-router file-based routing, react-query for server state, zustand for client state, Reanimated 3 for animation, MMKV for local storage
+- [`flutter-riverpod/PROMPT.md`](./flutter-riverpod/PROMPT.md) — full project layout: features/ with each feature owning UI + providers + repos + models, freezed, dio + retrofit, drift/isar for local
+- [`flutter-bloc/PROMPT.md`](./flutter-bloc/PROMPT.md) — same architectural shape with Bloc/Cubit replacing Riverpod providers, bloc_test patterns
+- [`react-native/PROMPT.md`](./react-native/PROMPT.md) — Expo SDK 52, expo-router, TanStack Query + zustand, Reanimated 3, MMKV, EAS Build/Update, Maestro E2E
