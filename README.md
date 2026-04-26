@@ -23,22 +23,23 @@ The goal is that you can drop a single prompt file into Claude Code and get a sy
 
 ## What's inside
 
-114 markdown files, ~28,000 lines of opinionated production-grade guidance.
+170 files, ~40,000 lines of opinionated production-grade guidance.
 
 | Area | Contents |
 |------|----------|
-| [`frontend/`](./frontend) | Next.js (PROMPT, stack, design system, animations, responsive, forms+state, testing), Angular (standalone + signals) |
-| [`backend/`](./backend) | FastAPI, NestJS, Node.js + Express — each with master scaffold prompt + 6 deep-dive guides on layout, ORM, validation, auth, async/queues, testing |
-| [`databases/`](./databases) | PostgreSQL, MongoDB, Redis, Qdrant — schema patterns, indexing, ops, when to pick which |
+| [`frontend/`](./frontend) | Next.js (PROMPT + 6 sub-files), Angular (PROMPT + signals/state + testing sub-files) |
+| [`backend/`](./backend) | FastAPI, NestJS, Node.js + Express — each with master scaffold prompt + 6 deep-dive guides |
+| [`databases/`](./databases) | **Postgres, MongoDB, Redis, Qdrant, Neo4j** — each with PROMPT.md + 4-5 deep sub-files (schema, queries, ops, language clients) |
 | [`async-and-queues/`](./async-and-queues) | Celery, BullMQ, Redis Streams + decision matrix vs Kafka/RabbitMQ/Temporal |
-| [`deployment/`](./deployment) | docker-compose, nginx reverse proxy, PM2, SSH bootstrap, Let's Encrypt SSL + per-framework deploy guides (Next.js, FastAPI, NestJS, Node) |
-| [`mobile/`](./mobile) | Flutter (Riverpod variant), Flutter (Bloc variant), React Native (Expo SDK 52) |
-| [`observability/`](./observability) | SigNoz + OpenTelemetry, Prometheus + Grafana + Tempo + Loki, Sentry, Langfuse |
-| [`memory-layer/`](./memory-layer) | Graphiti + Mem0 dual-memory architecture, 31 entity/edge types, dev docker-compose |
-| [`testing/`](./testing) | Agent-driven E2E via Chrome DevTools MCP and Puppeteer MCP + per-framework conventional testing |
-| [`cicd/`](./cicd) | GitHub Actions workflows per framework, deploy automation, secrets + environments |
+| [`deployment/`](./deployment) | docker-compose, nginx, PM2, SSH bootstrap, Let's Encrypt + per-framework deploy guides |
+| [`mobile/`](./mobile) | Flutter Riverpod (PROMPT + providers + offline-first), Flutter Bloc (PROMPT + bloc_test), React Native (PROMPT + EAS) |
+| [`observability/`](./observability) | SigNoz + OTel, Prometheus + Grafana + Tempo + Loki, Sentry, Langfuse |
+| [`memory-layer/`](./memory-layer) | Graphiti + Mem0 dual-memory architecture |
+| [`testing/`](./testing) | Agent-driven E2E via Chrome DevTools MCP + Puppeteer MCP + per-framework conventional |
+| [`cicd/`](./cicd) | GitHub Actions per framework, deploy automation, secrets + environments |
 | [`ai-agents/`](./ai-agents) | Agent architectures, RAG variants, tool use, evals, prompt engineering |
-| [`security/`](./security) | Pre-launch checklist, STRIDE threat modeling, secrets management, OWASP top 10 |
+| [`security/`](./security) | Pre-launch checklist, STRIDE threat modeling, secrets, OWASP top 10 |
+| [`infra-recipes/`](./infra-recipes) | **Sanitized docker-compose + scripts from a real production deployment**: shared-stack (Postgres+pgvector / Mongo / Redis / Qdrant / MinIO / n8n), self-hosted SigNoz/Plane/Twenty/Docmost, nginx templates, LiveKit production config, helper scripts |
 | [`examples/`](./examples) | End-to-end walkthroughs that chain the prompts to build real systems |
 | [`.claude/skills/`](./.claude/skills) | 16 Claude Code Skills wrapping the workflow-shaped prompts |
 | [`meta/`](./meta) | How to use these prompts, philosophy, Skills explained |
