@@ -1,0 +1,95 @@
+# Twenty CRM — Self-hosted CRM (HubSpot alternative)
+# ====================================================
+# Connects to shared-stack Postgres + Redis + MinIO
+#
+# Prerequisites:
+#   1. shared-stack running
+#   2. twenty DB created: ./scripts/create-postgres-db.sh twenty
+#   3. MinIO bucket 'twenty' created
+#   4. .env populated
+#
+# Usage:
+#   docker compose --env-file twenty.env up -d
+#
+# Domain: crm.example.com
+
+services:
+  # ============================================
+  # Twenty Server — Main Application
+  # ============================================
+  twenty-server:
+    image: twentycrm/twenty:${TAG:-latest}
+    container_name: twenty-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      SERVER_URL: ${SERVER_URL:-https://crm.example.com}
+      APP_SECRET: ${APP_SECRET}
+      # Postgres — shared
+      PG_DATABASE_URL: ${PG_DATABASE_URL}
+      # Redis — shared (use a dedicated DB number, e.g. 4)
+      REDIS_URL: ${REDIS_URL}
+      # Storage — MinIO (or external S3)
+      STORAGE_TYPE: ${STORAGE_TYPE:-s3}
+      STORAGE_S3_REGION: ${STORAGE_S3_REGION:-us-east-1}
+      STORAGE_S3_NAME: ${STORAGE_S3_NAME:-twenty}
+      STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT:-http://app-minio:9000}
+      STORAGE_S3_ACCESS_KEY_ID: ${STORAGE_S3_ACCESS_KEY_ID}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${STORAGE_S3_SECRET_ACCESS_KEY}
+      # Email (optional)
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Twenty CRM}
+      EMAIL_DRIVER: ${EMAIL_DRIVER:-}
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST:-}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-}
+      EMAIL_SMTP_USER: ${EMAIL_SMTP_USER:-}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD:-}
+      # Disable telemetry
+      TELEMETRY_ENABLED: ${TELEMETRY_ENABLED:-false}
+      IS_SIGN_UP_DISABLED: ${IS_SIGN_UP_DISABLED:-true}
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits: { cpus: '2', memory: 2G }
+        reservations: { cpus: '0.5', memory: 512M }
+
+  # ============================================
+  # Twenty Worker — Background Jobs
+  # ============================================
+  twenty-worker:
+    image: twentycrm/twenty:${TAG:-latest}
+    container_name: twenty-worker
+    restart: unless-stopped
+    command: ["yarn", "worker:prod"]
+    environment:
+      SERVER_URL: ${SERVER_URL:-https://crm.example.com}
+      APP_SECRET: ${APP_SECRET}
+      PG_DATABASE_URL: ${PG_DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      STORAGE_TYPE: ${STORAGE_TYPE:-s3}
+      STORAGE_S3_REGION: ${STORAGE_S3_REGION:-us-east-1}
+      STORAGE_S3_NAME: ${STORAGE_S3_NAME:-twenty}
+      STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT:-http://app-minio:9000}
+      STORAGE_S3_ACCESS_KEY_ID: ${STORAGE_S3_ACCESS_KEY_ID}
+      STORAGE_S3_SECRET_ACCESS_KEY: ${STORAGE_S3_SECRET_ACCESS_KEY}
+    networks:
+      - app-network
+    depends_on:
+      twenty-server:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.25', memory: 256M }
+
+networks:
+  app-network:
+    external: true

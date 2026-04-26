@@ -1,0 +1,63 @@
+# OpenTelemetry Collector Configuration
+# Receives OTLP and routes to debug exporter (local dev) or full SigNoz pipeline (prod)
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins: ["*"]
+          allowed_headers: ["*"]
+
+processors:
+  batch:
+    send_batch_size: 100
+    timeout: 1s
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+
+exporters:
+  # Debug exporter — logs received telemetry to stdout (dev)
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 1
+
+  # For production, uncomment to send to a SigNoz cloud instance:
+  # otlp/signoz:
+  #   endpoint: ingest.us.signoz.cloud:443
+  #   headers:
+  #     signoz-access-token: ${SIGNOZ_INGESTION_KEY}
+
+  # For self-hosted SigNoz, uncomment:
+  # clickhousetraces:
+  #   datasource: tcp://clickhouse:9000?database=signoz_traces
+  # clickhousemetricswrite:
+  #   endpoint: tcp://clickhouse:9000?database=signoz_metrics
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug]    # add otlp/signoz or clickhousetraces for prod
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug]
+  telemetry:
+    logs:
+      level: info

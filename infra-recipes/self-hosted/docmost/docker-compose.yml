@@ -1,0 +1,60 @@
+# Docmost — Self-hosted Wiki (Notion alternative)
+# ================================================
+# Connects to shared-stack Postgres + Redis
+#
+# Prerequisites:
+#   1. shared-stack running
+#   2. docmost DB created: ./scripts/create-postgres-db.sh docmost
+#   3. .env populated with DATABASE_URL + REDIS_URL + APP_SECRET (32+ char random)
+#
+# Usage:
+#   docker compose --env-file docmost.env up -d
+#
+# Domain: wiki.example.com
+
+services:
+  docmost:
+    image: docmost/docmost:latest
+    container_name: docmost
+    restart: unless-stopped
+    environment:
+      APP_URL: ${APP_URL:-https://wiki.example.com}
+      APP_SECRET: ${APP_SECRET}                          # 32+ char random
+      # Postgres - shared-stack
+      DATABASE_URL: ${DATABASE_URL}                       # postgresql://docmost:****@app-postgres:5432/docmost
+      # Redis - shared-stack (use a dedicated DB number, e.g. 1)
+      REDIS_URL: ${REDIS_URL}                             # redis://:****@app-redis:6379/1
+      # Storage (local — for S3 use STORAGE_DRIVER=s3)
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      FILE_UPLOAD_SIZE_LIMIT: '100mb'
+      # Email (optional)
+      MAIL_DRIVER: ${MAIL_DRIVER:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Wiki}
+    ports:
+      - "127.0.0.1:3010:3000"             # nginx fronts on 3010 → docmost on 3000
+    volumes:
+      - docmost_data:/app/data/storage
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.25', memory: 256M }
+
+volumes:
+  docmost_data:
+
+networks:
+  app-network:
+    external: true

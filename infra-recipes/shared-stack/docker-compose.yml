@@ -1,0 +1,253 @@
+# Shared Infrastructure — Multi-Service Docker Compose
+# ======================================================
+# One compose, one network, all services. Apps connect via the `app-network` bridge.
+#
+# Services included:
+#   - postgres (with pgvector) — relational + vector
+#   - mongodb — document store
+#   - redis — cache + queue broker
+#   - qdrant — dedicated vector DB
+#   - minio — S3-compatible object storage
+#   - n8n — workflow automation (optional)
+#
+# Setup:
+#   1. cp .env.example .env  # then fill in passwords
+#   2. docker compose up -d
+#   3. ./scripts/create-postgres-db.sh <project>  # to add a per-project DB
+#
+# All ports bind to 127.0.0.1 — fronted by nginx for external access.
+
+services:
+  # ============================================
+  # PostgreSQL with pgvector
+  # ============================================
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: app-postgres
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-scripts:/docker-entrypoint-initdb.d:ro
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # propagated to init scripts so they can create per-app DBs
+      N8N_DB_NAME: ${N8N_DB_NAME:-n8n}
+      N8N_DB_USER: ${N8N_DB_USER:-n8n}
+      N8N_DB_PASSWORD: ${N8N_DB_PASSWORD}
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=512MB"
+      - "-c"
+      - "effective_cache_size=1500MB"
+      - "-c"
+      - "work_mem=8MB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits: { cpus: '2', memory: 2G }
+        reservations: { cpus: '0.25', memory: 256M }
+
+  # ============================================
+  # MongoDB
+  # ============================================
+  mongodb:
+    image: mongo:8.0
+    container_name: app-mongodb
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${MONGODB_PORT:-27017}:27017'
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?MONGO_INITDB_ROOT_PASSWORD required}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-app}
+    command: mongod --wiredTigerCacheSizeGB 1 --bind_ip 0.0.0.0 --setParameter diagnosticDataCollectionEnabled=false
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    deploy:
+      resources:
+        limits: { cpus: '2', memory: 2G }
+        reservations: { cpus: '0.5', memory: 512M }
+
+  # ============================================
+  # Redis (cache + queue broker)
+  # ============================================
+  redis:
+    image: redis:8.0-alpine
+    container_name: app-redis
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD required}
+    command: >
+      sh -c "redis-server /usr/local/etc/redis/redis.conf --requirepass $$REDIS_PASSWORD"
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 512M }
+        reservations: { cpus: '0.25', memory: 128M }
+
+  # ============================================
+  # Qdrant (vector DB)
+  # ============================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: app-qdrant
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${QDRANT_HTTP_PORT:-6333}:6333'
+      - '127.0.0.1:${QDRANT_GRPC_PORT:-6334}:6334'
+    volumes:
+      - qdrant_storage:/qdrant/storage
+      - qdrant_snapshots:/qdrant/snapshots
+      - ./qdrant/config.yaml:/qdrant/config/production.yaml:ro
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?QDRANT_API_KEY required}
+      QDRANT__LOG_LEVEL: INFO
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --quiet --spider --tries=1 http://localhost:6333/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits: { cpus: '4', memory: 4G }
+        reservations: { cpus: '1', memory: 1G }
+
+  # ============================================
+  # MinIO (S3-compatible object storage)
+  # ============================================
+  minio:
+    image: minio/minio:latest
+    container_name: app-minio
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${MINIO_API_PORT:-9000}:9000'
+      - '127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001'
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD required (min 8 chars)}
+    command: server /data --console-address ":9001"
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9000/minio/health/live || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 1G }
+        reservations: { cpus: '0.25', memory: 256M }
+
+  # ============================================
+  # n8n — workflow automation (optional)
+  # ============================================
+  # Uses Postgres for state + Redis for queue
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: app-n8n
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${N8N_PORT:-5678}:5678'
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_TRUST_PROXY=true
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - NODE_ENV=production
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${N8N_TIMEZONE:-UTC}
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+      # queue mode via Redis
+      - QUEUE_BULL_REDIS_HOST=app-redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_PASSWORD=${REDIS_PASSWORD}
+      # state in Postgres
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=app-postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME:-n8n}
+      - DB_POSTGRESDB_USER=${N8N_DB_USER:-n8n}
+      - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD}
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:5678/healthz']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits: { cpus: '2', memory: 2G }
+        reservations: { cpus: '0.5', memory: 512M }
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  mongodb_config:
+  redis_data:
+  qdrant_storage:
+  qdrant_snapshots:
+  minio_data:
+  n8n_data:
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge

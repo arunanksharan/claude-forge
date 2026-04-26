@@ -1,0 +1,37 @@
+# Qdrant configuration — production-leaning defaults
+# https://qdrant.tech/documentation/guides/configuration/
+
+log_level: INFO
+
+service:
+  http_port: 6333
+  grpc_port: 6334
+  enable_cors: true
+  max_request_size_mb: 32
+
+storage:
+  performance:
+    optimizers:
+      default_segment_number: 4
+      max_segment_size_kb: 200000
+      memmap_threshold_kb: 50000
+      indexing_threshold_kb: 20000
+      flush_interval_sec: 5
+      max_optimization_threads: 2
+
+  on_disk_payload: true               # save RAM by storing payload on disk
+
+  hnsw_index:
+    m: 16
+    ef_construct: 100
+    full_scan_threshold: 10000
+
+# Cluster mode (uncomment for multi-node)
+# cluster:
+#   enabled: true
+#   p2p:
+#     port: 6335
+#   consensus:
+#     tick_period_ms: 100
+
+telemetry_disabled: true              # don't phone home
