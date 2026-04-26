@@ -68,7 +68,7 @@ The longer specs (design system, memory-layer architecture, observability) are r
 
 ## License
 
-MIT. Use these in commercial work, fork them, modify them. A link back is appreciated but not required.
+[The Unlicense](./LICENSE) — public domain dedication. Use these in commercial work, fork them, modify them, ship them as-is. No attribution required. A link back is appreciated but not legally required.
 
 ---
 
