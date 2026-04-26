@@ -4,9 +4,9 @@
 
 ## Files
 
-- `e2e-with-chrome-devtools-mcp.md` — *Phase 5* — using the Chrome DevTools MCP server to navigate, click, fill, screenshot, and inspect console messages from inside Claude Code
-- `e2e-with-puppeteer-mcp.md` — *Phase 5* — same idea via Puppeteer MCP, when you need headless or specific Chromium control
-- `per-framework/` — *Phase 5* — Vitest + RTL for React, pytest + httpx for FastAPI, Jest + Supertest for Nest/Express, Flutter integration tests
+- [`e2e-with-chrome-devtools-mcp.md`](./e2e-with-chrome-devtools-mcp.md) — using the Chrome DevTools MCP server to navigate, click, fill, screenshot, and inspect console from inside Claude Code
+- [`e2e-with-puppeteer-mcp.md`](./e2e-with-puppeteer-mcp.md) — Puppeteer MCP variant, when you need headless or multi-tab
+- [`per-framework/README.md`](./per-framework/README.md) — index of per-framework conventional testing guides (lives with each framework's PROMPT.md)
 
 ## Why agent-driven E2E
 
