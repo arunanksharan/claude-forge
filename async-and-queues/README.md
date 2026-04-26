@@ -14,7 +14,7 @@
 
 ## Files
 
-- `celery.md` — *Phase 4* — Celery setup with FastAPI, beat scheduling, retries, idempotency, result backend, dead letter queue
-- `bullmq.md` — *Phase 4* — BullMQ with NestJS / Express, repeatable jobs, flow producers, worker patterns
-- `redis-streams.md` — *Phase 4* — Streams + consumer groups for cross-service eventing without Kafka
-- `workers-comparison.md` — *Phase 4* — Decision matrix with real-world failure modes
+- [`celery.md`](./celery.md) — Celery + Redis broker, retries, beat schedule, idempotency, observability
+- [`bullmq.md`](./bullmq.md) — BullMQ standalone, queues, processors, repeatable, flow producers
+- [`redis-streams.md`](./redis-streams.md) — Streams + consumer groups for cross-service eventing
+- [`workers-comparison.md`](./workers-comparison.md) — Decision matrix: Celery vs BullMQ vs Streams vs Kafka vs RabbitMQ vs Temporal
