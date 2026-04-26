@@ -23,7 +23,7 @@ The goal is that you can drop a single prompt file into Claude Code and get a sy
 
 ## What's inside
 
-93 markdown files, ~24,000 lines of opinionated production-grade guidance.
+114 markdown files, ~28,000 lines of opinionated production-grade guidance.
 
 | Area | Contents |
 |------|----------|
@@ -36,6 +36,10 @@ The goal is that you can drop a single prompt file into Claude Code and get a sy
 | [`observability/`](./observability) | SigNoz + OpenTelemetry, Prometheus + Grafana + Tempo + Loki, Sentry, Langfuse |
 | [`memory-layer/`](./memory-layer) | Graphiti + Mem0 dual-memory architecture, 31 entity/edge types, dev docker-compose |
 | [`testing/`](./testing) | Agent-driven E2E via Chrome DevTools MCP and Puppeteer MCP + per-framework conventional testing |
+| [`cicd/`](./cicd) | GitHub Actions workflows per framework, deploy automation, secrets + environments |
+| [`ai-agents/`](./ai-agents) | Agent architectures, RAG variants, tool use, evals, prompt engineering |
+| [`security/`](./security) | Pre-launch checklist, STRIDE threat modeling, secrets management, OWASP top 10 |
+| [`examples/`](./examples) | End-to-end walkthroughs that chain the prompts to build real systems |
 | [`.claude/skills/`](./.claude/skills) | 16 Claude Code Skills wrapping the workflow-shaped prompts |
 | [`meta/`](./meta) | How to use these prompts, philosophy, Skills explained |
 
